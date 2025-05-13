@@ -30,11 +30,11 @@
             <div class="row">
                 <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4">
                     <h3><span class="glyphicon glyphicon-home"></span> Εννιαία Διαχείριση</h3>
-                    <p>Παρέχεται εννιαίο διαχειριστκό για τα 3 είδη χρηστών.
+                    <p>.
                         <ul>
-                            <li>Διαχειριστικό για Βλάβες σε Πολυκατοικίες</li>
-                            <li>Διαχειριστικό για Εταιρίες Ανελκυστήρων</li>
-                            <li>Διαχειριστικό Χρηστών της Εφαρμογής</li>
+                            <li>Βλάβες Ανελκυστήρων σε Πολυκατοικίες</li>
+                            <li>Εταιρίες Συντήρησης Ανελκυστήρων</li>
+                
                         </ul>
                     </p>
                 </div>
@@ -45,7 +45,7 @@
                         <input type="password" name="password" class="form-control" placeholder="password">
                         Τύπος Χρήστη<select name="type" class="form-control">
                                         <option value="super">Διαχειριστής Πολυκατοικίας</option>
-                                        <option value="elevator">Διαχειριστής Ανελκυστήρων</option>
+                                        <option value="elevator">Εταιρία Συντήρησης</option>
                                         <option value="admin">Admin</option>
                                     </select><br>
                         <button type="submit" name="login" class="btn btn-primary">
@@ -61,6 +61,7 @@
                             <li>Καταχώρηση Βλαβών</li>
                             <li>Καταχώρηση Επισκευής Βλαβών</li>
                             <li>Reporting & Ιστορικό Βλαβών/Χρηστών/Επισκευών</li>
+                            <li>Απευθείας Ενημέρωση μέσω συνομίλιας</li>
                         </ul>
                     </p>
                 </div>

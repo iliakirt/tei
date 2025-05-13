@@ -30,7 +30,7 @@
                 $imageFileType = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
 
                 // Check if image file is a actual image or fake image
-                if (isset($_POST["submit"])) {
+                if (isset($_POST["submit"])) {                   
                     $check = getimagesize($_FILES["fileToUpload"]["tmp_name"]);
                     if ($check !== false) {
                         //echo "File is an image - " . $check["mime"] . ".";
@@ -42,15 +42,7 @@
                         $uploadOk = 0;
                     }
                 }
-
-                // Check if file already exists
-                if (file_exists($target_file)) {
-                    //echo "Sorry, file already exists."; ?>
-                    <div class="alert alert-danger">Το αρχείο υπάρχει ήδη. Πηγαίνετε <a href="profile.php">πίσω</a></div>
-                    <?php
-                    $uploadOk = 0;
-                }              
-
+                           
                 // Allow certain file formats
                 if (
                     $imageFileType != "jpg" && $imageFileType != "png" && $imageFileType != "jpeg"
@@ -87,7 +79,8 @@
                         <div class="alert alert-danger">Προέκυψε σφάλμα. Πηγαίνετε <a href="profile.php">πίσω</a></div>
                         <?php
                     }
-                }?>        
+                }
+            ?>        
             </div>
         </div>
     </div>

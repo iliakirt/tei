@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="WebServers">
+    <option name="servers">
+      <webServer id="c887824c-d63f-4b50-bc6c-455c85e3cc44" name="Elias" url="http://192.168.0.101:8080/">
+        <fileTransfer mountedRoot="C:\xampp\htdocs\elias" accessType="MOUNT" port="0" />
+      </webServer>
+    </option>
+  </component>
+</project>

@@ -1,10 +1,11 @@
 <?php 
-include 'config.php';   
+include 'config.php';
+
 session_start(); 
 if (!isset($_SESSION['user'])){
     header('location: index.php');
-} 
-$user = $_SESSION['user']; 
+}
+$user = $_SESSION['user'];
 ?>
 <html>
     <head>
@@ -17,7 +18,10 @@ $user = $_SESSION['user'];
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
-        <style>.container { margin: 2em auto; border: 1px solid #ddd; 
+
+        <!-- Fontawesome 5-->
+        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css">
+        <style>.container { margin: 2em auto; border: 1px solid #ddd;
         box-shadow: 0 5px 8px #666; padding: 1em;} input { margin-bottom: .5em; }
         .jumbotron { background-image: url(assets/heading.png); 
             background-size: cover; height: 400px;}
@@ -30,6 +34,29 @@ $user = $_SESSION['user'];
             
         }
         .sub {color: #fff; text-transform: capitalize; }
+            .notification {
+                background-color: #555;
+                color: white;
+                text-decoration: none;
+                padding: 15px 26px;
+                position: relative;
+                display: inline-block;
+                border-radius: 2px;
+            }
+
+            .notification:hover {
+                background: red;
+            }
+
+            .notification .badge {
+                position: absolute;
+                top: -10px;
+                right: -10px;
+                padding: 5px 10px;
+                border-radius: 50%;
+                background: red;
+                color: white;
+            }
         </style>
         
         <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
@@ -45,7 +72,25 @@ $user = $_SESSION['user'];
             $(document).ready(function() {
     $('#niaou').DataTable();
 } );
+
         </script>
+       <script>
+    function updateBadge() {
+        $.ajax({
+            url: 'updatenotifications.php',
+            method: 'GET',
+            success: function(data) {
+                var unseenCount = JSON.parse(data).unseen_count;
+                $('#unseen_count').text(unseenCount);
+            }
+        });
+    }
+
+    $(document).ready(function() {
+        updateBadge();
+        setInterval(updateBadge, 3000); // Update every 3 seconds
+    });
+</script>
 
 </head>
     <body>
@@ -60,11 +105,45 @@ $user = $_SESSION['user'];
                         $idc = $user['idc'];
                         $q = mysqli_query($con, "SELECT * FROM company WHERE idc='$idc'");                       
                         $company = mysqli_fetch_array($q);                        
-                        print $user['fullname']." / ".$company['name_company'];
-                        }else{
+                        print $user['fullname']."&nbsp;/&nbsp;".$company['name_company'];
+
+                    }else{
                             print $user['name_company'];
-                        } ?></b></span> | 
+                        }
+                        //chatapp
+                        $email_c = $user['email'];
+                        $sql_c = mysqli_query($con, "SELECT * FROM users WHERE email='$email_c'");
+                        $chat = mysqli_fetch_array($sql_c);
+                        //chatapp
+                        ?></b></span> | 
                     <a href="logout.php" class="btn btn-default">Κάντε αποσύνδεση <span class="glyphicon glyphicon-log-out"></span></a></h4>
+
+                    <!--chatapp-->
+                    <form action="chat/php/login.php" method="POST">
+                    <?php if (isset($chat['email'])): ?>
+                   <input type="hidden" name="email" value="<?= $chat['email'] ?>">
+                   <?php endif; ?>
+                <?php if (isset($chat['password'])): ?>
+                 <input type="hidden" name="password" value="<?= $chat['password'] ?>">
+                 <?php endif; ?>
+                 <!--
+                 <span class="notification">
+                <span class="badge" id="unseen_count">1</span>
+              <button class="btn btn-danger">Inbox</button>
+               </span>
+                -->
+               <?php if($user['type'] != 'admin') {?>
+						
+						<span  class="notification">
+                            <span class="badge">1</span>
+                                   <button class="btn btn-danger">
+                                   Inbox</button></form>
+                        </span>
+            <?php } ?> 
+            </form>
+             
+          <!--chatapp-->
+
 
                     <!-- plain users --> 
                     <?php if ($user['type'] == 'super'){ ?> 
@@ -80,13 +159,13 @@ $user = $_SESSION['user'];
                                         <td>Ενέργεια</td>
                                     </tr>
                                     <tr>
-                                        <form action="update_user.php">
-                                            <input type="hidden" name="uid" value="<?= $user['id'] ?>">
-                                            <input type="hidden" name="type" value="<?= $user['type'] ?>">
-                                            <td><input style="border: none;" type="text" name="uname" value="<?= $user['fullname']?>"></td>
-                                            <td><input style="border: none;" type="text" name="uemail" value="<?= $user['email']?>"></td>
-											<td><input style="border: none;" type="text" name="uphone" value="<?= $user['phone']?>"></td>
-                                            <td><input style="border: none;" type="text" name="uaddress" value="<?= $user['address']?>"></td>
+                                        <form action="update_user.php" method="post">
+                                            <input type="hidden" name="id" value="<?= $user['id'] ?>">
+                                            <input type="hidden" name="utype" value="super">
+                                            <td><input style="border: none;" type="text" name="name" value="<?= $user['fullname']?>"></td>
+                                            <td><input style="border: none;" type="text" name="email" value="<?= $user['email']?>"></td>
+											<td><input style="border: none;" type="text" name="phone" value="<?= $user['phone']?>"></td>
+                                            <td><input style="border: none;" type="text" name="address" value="<?= $user['address']?>"></td>
                                             <td><button class="btn btn-success" type="submit">Αποθήκευση</button></td>
                                         </form>
                                     </tr>
@@ -113,8 +192,14 @@ $user = $_SESSION['user'];
                                     <input type="file" name="fileToUpload" id="fileToUpload">
                                     <input type="submit" value="Αποστολή Βλάβης" name="submit" class="btn btn-warning">
                                 </form>
+                  <!--chatapp--><form action="chat/php/login.php" method="POST">
+                                     <input type="hidden" name="email" value="<?= $chat['email'] ?>">
+                                     <input type="hidden" name="password" value="<?= $chat['password'] ?>">
+                                     <button class="btn btn-danger">
+                                   Στείλτε Μήνυμα</button></form><!--chatapp-->                             
                             </div>  
                         </div>
+
                         <h3><span class="glyphicon glyphicon-list"></span> Ιστορικό </h3>
                         <table id="niaou" class="table table-striped">
                             <thead>
@@ -148,6 +233,36 @@ $user = $_SESSION['user'];
                     <!-- elevator users --> 
                     <?php if ($user['type'] == 'elevator'){ ?> 
 
+                        <!-- Modal -->
+                     <div class="modal fade" id="adddata" tabindex="-1" role="dialog" aria-labelledby="exampleModalLongTitle" aria-hidden="true">
+                            <div class="modal-dialog" role="document">
+                             <div class="modal-content">
+                              <div class="modal-header">
+                                <h3 class="modal-title" id="exampleModalLongTitle">Προσθήκη Διαχειριστή</h3>
+                             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                 <span aria-hidden="true">&times;</span>
+                             </button>
+                              </div>
+                         <div class="modal-body">
+                                <form action="insert.php" method="post" style=" margin: auto;">
+                                    <input type="hidden" name="type_admin" value="elevator">
+                                    <input type="hidden" name="idc" value="<?= $user['idc'] ?>">
+                                    <input type="text" name="full" class="form-control" placeholder="Ονοματεπώνυμο" required>
+                                    <input type="text" name="address" class="form-control" placeholder="Διεύθυνση" required>
+									<input type="text" name="phone" class="form-control" placeholder="Τηλέφωνο" required>
+                                    <input type="email" name="email" class="form-control" placeholder="Email" required>
+                                    <input type="password" name="pass" class="form-control" placeholder="Choose password" required> 
+                                    <input type="hidden" name="type" value="super">
+                                    <div>
+                                    <button class="btn btn-primary" type="submit"><span class="glyphicon glyphicon-user"></span> Νέος Διαχειριστής</button>
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Κλείσιμο</button>
+                                     </div>
+                                </form>
+                       </div>
+                     </div>
+                </div>
+         </div>
+
                         <div class="row">
                             <div class="col-md-12">
                                 <h3>Προφίλ Χρήστη</h3>
@@ -160,9 +275,9 @@ $user = $_SESSION['user'];
                                         <td>Ενέργεια</td>
                                     </tr>
                                     <tr>
-                                        <form action="update_user.php">
+                                        <form action="update_user.php" method="post">
                                             <input type="hidden" name="idc" value="<?= $user['idc'] ?>">
-                                            <input type="hidden" name="type" value="<?= $user['type'] ?>">
+                                            <input type="hidden" name="utype" value="elevator">
                                             <td><input style="border: none;" type="text" name="name_company" value="<?= $user['name_company']?>"></td>
                                             <td><input style="border: none;" type="text" name="email" value="<?= $user['email']?>"></td>
 											<td><input style="border: none;" type="text" name="phone" value="<?= $user['phone']?>"></td>
@@ -171,10 +286,6 @@ $user = $_SESSION['user'];
                                         </form>
                                     </tr>
                                 </table>
-                            </div>
-
-                            <div class="col-md-12">
-                                <!-- 1111111111-->
                             </div>
                         </div>
 
@@ -190,8 +301,8 @@ $user = $_SESSION['user'];
                                     <th>Περιεχόμενο</th>
                                     <th>Σχόλια</th>
                                     <th>Η/ΝΙΑ ΒΛΑΒΗΣ</th>
-                                    <th>Η/ΝΙΑ SERVICE</th>
-                                    <th>SERVICE</th>
+                                    <th>Η/ΝΙΑ ΕΠΙΣΚΕΥΗ</th>
+                                    <th>ΕΠΙΣΚΕΥΗ/ΠΛΗΡΟΦΟΡΙΕΣ</th>
                                     </tr>
                                     </thead>
                                     <tbody>
@@ -209,13 +320,16 @@ $user = $_SESSION['user'];
                                             echo '<td>'.$row['message'].'</td>';
                                             echo '<td>'.$row['day_error'].'</td>';
                                             echo '<td>'.$row['day_service'].'</td>';
-                                            echo '<form action="fix.php">';
+                                            echo '<form action="fix.php" method="post">';
+                                            echo '<input type="hidden" style="border: none;" value="'.$row['id'].'" name="id">';
+                                            echo '<input type="hidden" style="border: none;" value="'.$row['ide'].'" name="ide">';
+                                            echo '<input type="hidden" style="border: none;" value="'.$user['idc'].'" name="idc">';
                                             if($row['day_service'] == null){
                                             echo '<td><button type="submit" class="btn btn-warning">
-                                            Service </button></td>';
+                                            Επισκευή </button></td>';
                                             }else{
                                                 echo '<td><button type="submit" class="btn btn-info">
-                                            Informations </button></td>';
+                                            Πληροφορίες </button></td>';
                                             }
                                             echo '</form>';
                                             echo '</tr>';
@@ -226,7 +340,59 @@ $user = $_SESSION['user'];
                                 </table>
                             </div>
                             <div class="col-md-12">
-                                <!---hfntntertntrtntnr-->
+                              <div class="row">
+                                 <div class="col-md-12 col-lg-12">                                          
+                                              <!--chatapp-->
+                                              <form action="chat/php/login.php" method="POST">
+                                                <input type="hidden" name="email" value="<?= $chat['email'] ?>">
+                                                <input type="hidden" name="password" value="<?= $chat['password'] ?>">
+                                              <button class="btn btn-danger">
+                                                       Στείλτε Μήνυμα</button> </form>  <!--chatapp--> 
+                                              <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#adddata">
+                                                       Προσθήκη Διαχειριστή</button>     
+                                  </div>
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                            <h3>Εταιρίες/Χρήστες</h3>
+                                <table class="display">
+                                    <thead>
+                                    <tr>
+                                        <th col="scope">Διαχειριστής</th>
+                                        <th col="scope">Διεύθυνση</th>
+										<th col="scope">Τηλέφωνο</th>
+                                        <th col="scope">Email</th>
+                                        <th col="scope">Password</th>
+                                        <th col="scope">Αποθήκευση/Διαγραφή</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    <?php 
+                                    $q1 = mysqli_query($con, 'SELECT * FROM diaxeiristes WHERE idc='.$user['idc'].'');
+                                    while($row1 = mysqli_fetch_array($q1)){  
+                                        $id=$row1['id'];
+                                        $name=$row1['fullname'];
+                                        $add=$row1['address'];
+                                        $phone=$row1['phone'];
+                                        $email=$row1['email'];
+                                        $pass=$row1['password'];
+                                        echo '<tr>';
+                                        echo '<form action="core.php" method="post">';
+                                        echo '<input type="hidden" style="border: none;" value="'.$id.'" name="id">';
+                                        echo '<input type="hidden" style="border: none;" value="elevator" name="admin">';
+                                        echo '<td><input type="text" style="border: none;" value="'.$name.'" name="fullname"></td>';
+                                        echo '<td><input type="text" style="border: none;" value="'.$add.'" name="address"></td>';
+                                        echo '<td><input type="text" style="border: none;" value="'.$phone.'" name="phone"></td>';
+                                        echo '<td><input type="email" style="border: none;" value="'.$email.'" name="email"></td>';
+                                        echo '<td><input type="text" style="border: none;" value="'.$pass.'" name="password"></td>';
+                                        echo '<td><button name="save" type="submit" class="btn btn-success">&#10004;</button>';
+                                        echo '<button name="delete"type="submit" class="btn btn-danger">&times;</button></td>';
+                                        echo '</form>';
+                                        echo '</tr>';
+                                      } ?>
+                                    </tbody>
+                                </table>
+                                
                             </div>
                         </div>
                         
@@ -245,13 +411,14 @@ $user = $_SESSION['user'];
                             <div class="modal-dialog" role="document">
                              <div class="modal-content">
                               <div class="modal-header">
-                                <h3 class="modal-title" id="exampleModalLongTitle">Εισαγωγή Εταιρίας</h3>
+                                <h3 class="modal-title" id="exampleModalLongTitle">Προσθήκη Εταιρίας</h3>
                              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                  <span aria-hidden="true">&times;</span>
                              </button>
                               </div>
                          <div class="modal-body">
                                 <form action="insert.php" method="post" style=" margin: auto;">
+                                    <input type="hidden" name="type_admin" value="admin">
                                     <input type="text" name="full" class="form-control" placeholder="Εταιρία" required>
                                     <input type="text" name="address" class="form-control" placeholder="Διεύθυνση" required>
 									 <input type="text" name="phone" class="form-control" placeholder="Τηλέφωνο" required>
@@ -263,7 +430,7 @@ $user = $_SESSION['user'];
                                     </select><br>
                                     <div>
                                     <button class="btn btn-primary" type="submit"><span class="glyphicon glyphicon-user"></span> Νέος Χρήστης</button>
-                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Κλείσιμο</button>
                                      </div>
                                 </form>
                        </div>
@@ -307,13 +474,14 @@ $user = $_SESSION['user'];
                                         $pass=$r['password'];
                                         echo '<tr>';
                                         echo '<form action="core.php" method="post">';
+                                        echo '<input type="hidden" style="border: none;" value="admin" name="admin">';
                                         echo '<input type="hidden" style="border: none;" value="'.$idc.'" name="idc">';
                                         echo '<td><input type="text" style="border: none;" value="'.$n_m.'" name="name_company"></td>';
                                         echo '<td><input type="text" style="border: none;" value="'.$add.'" name="address"></td>';
                                         echo '<td><input type="text" style="border: none;" value="'.$phone.'" name="phone"></td>';
                                         echo '<td><input type="email" style="border: none;" value="'.$email.'" name="email"></td>';
                                         echo '<td><input type="text" style="border: none;" value="'.$pass.'" name="password"></td>';
-                                        echo '<td><button name="save" type="submit" class="btn btn-success">Save</button>';
+                                        echo '<td><button name="save" type="submit" class="btn btn-success">&#10004;</button>';
                                         echo '<button name="delete"type="submit" class="btn btn-danger">&times;</button></td>';
                                         echo '</form>';
                                         echo '</tr>';
